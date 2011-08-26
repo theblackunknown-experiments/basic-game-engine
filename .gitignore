@@ -1,4 +1,6 @@
 target/
 project/boot/
 .idea
+*.iml
 *~
+.fuse*
