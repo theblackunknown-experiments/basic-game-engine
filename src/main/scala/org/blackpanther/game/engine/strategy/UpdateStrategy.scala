@@ -2,20 +2,12 @@ package org.blackpanther.game
 package engine
 package strategy
 
-sealed abstract class UpdateType extends StrategyType
-
-object UpdateStrategyProvider extends StrategyProvider[UpdateStrategy,UpdateType] {
-
-    object Default extends UpdateType
+object UpdateStrategyProvider extends StrategyProvider {
 
     import engine.GameEngine.GameState
 
-    def apply(request : UpdateType) : UpdateStrategy = request match {
-        case Default => DefaultUpdateStrategy
-    }
-
-    private object DefaultUpdateStrategy extends UpdateStrategy {
-        def update(state : GameState) {
+    object Default extends UpdateStrategy {
+        def apply(state : GameState) {
             println("Game is updated")
         }
     }

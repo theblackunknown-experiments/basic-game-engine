@@ -9,26 +9,22 @@ import engine.GameEngine.GameState
  * @version 8/26/11
  */
 
-sealed abstract class Strategy
+sealed trait Strategy 
 
-abstract class UpdateStrategy extends Strategy {
-  def update(state : GameState) : Unit
-}
-abstract class RenderStrategy extends Strategy {
-  def render(state : GameState) : Unit
-}
-abstract class PainterStrategy extends Strategy {
-  def repaint(state : GameState) : Unit
-}
-abstract class TimerStrategy extends Strategy {
-  def sleep(state : GameState) : Unit
-}
+abstract class UpdateStrategy extends ((GameState) => Unit)
+                              with Strategy
 
-private[strategy] abstract class StrategyType
+import java.awt.{Image, Graphics}
 
-private [strategy] 
-abstract class StrategyProvider[ProvidedStrategy <: Strategy, ProvidedType <: StrategyType] {
-
-  def apply(request : ProvidedType) : ProvidedStrategy
-
+abstract class RenderStrategy extends ((GameState) => Image)
+                              with Strategy {
+  def gameOverMessage(g : Graphics)
 }
+abstract class PainterStrategy extends ((GameState) => Unit)
+                              with Strategy
+
+abstract class TimerStrategy extends ((GameState) => Unit)
+                              with Strategy
+
+
+private [strategy] abstract class StrategyProvider

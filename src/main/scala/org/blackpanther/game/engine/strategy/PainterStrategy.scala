@@ -2,20 +2,17 @@ package org.blackpanther.game
 package engine
 package strategy
 
-sealed abstract class PainterType extends StrategyType
+import ui.GamePanel
 
-object PainterStrategyProvider extends StrategyProvider[PainterStrategy,PainterType] {
-
-    object Default extends PainterType
+object PainterStrategyProvider extends StrategyProvider {
 
     import engine.GameEngine.GameState
 
-    def apply(request : PainterType) : PainterStrategy = request match {
-        case Default => DefaultPainterStrategy
-    }
+    object Default extends PainterStrategy {
+        def apply(state : GameState) {
 
-    private object DefaultPainterStrategy extends PainterStrategy {
-        def repaint(state : GameState) {
+            GamePanel.repaint()
+            
             println("Game is repainted")
         }
     }

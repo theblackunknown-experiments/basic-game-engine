@@ -2,30 +2,73 @@ package org.blackpanther.game
 package engine
 package strategy
 
-sealed abstract class RenderType extends StrategyType
+object RenderStrategyProvider extends StrategyProvider {
 
-object RenderStrategyProvider extends StrategyProvider[RenderStrategy,RenderType] {
+  import engine.GameEngine.GameState
 
-    object Default extends RenderType
-    object Buffered extends RenderType
+  object Buffered extends RenderStrategy {
 
-    import engine.GameEngine.GameState
+    import ui.GamePanel
+    import java.awt.{Color, Graphics, Image}
+    import java.awt.image.BufferedImage
 
-    def apply(request : RenderType) : RenderStrategy = request match {
-        case Buffered => BufferedRenderStrategy
-        case Default => DefaultRenderStrategy
-    }
+    /*
+    * TODO Explore Volatile Image
+    * 
+    * Because Volatile Image could be lost at any time, 
+    * we ought use it for an efficient render, then get a snapshot of it as a BufferedImage
+    * http://download.oracle.com/javase/6/docs/api/java/awt/image/VolatileImage.html
+    */
+    private val bufferImage = 
+      new BufferedImage(
+        GamePanel.getPreferredSize.width,
+        GamePanel.getPreferredSize.height,
+        BufferedImage.TYPE_INT_RGB
+      )
 
-    private object DefaultRenderStrategy extends RenderStrategy {
-        def render(state : GameState) {
-            println("Game is rendered")
+    val width = GamePanel.getPreferredSize.width
+    val height = GamePanel.getPreferredSize.height
+
+    def apply(state : GameState) : Image = 
+      render { (graphics :Graphics) =>
+
+        graphics.setColor(Color.white)
+        graphics.fillRect(0,0,width,height)
+
+        graphics.setColor(Color.black)
+        graphics.drawString(
+          "Under construction",
+          width / 3,
+          height / 2
+        )
+
+        if(state.over) {
+          gameOverMessage(graphics)
         }
+      }
+
+    def gameOverMessage(graphics : Graphics) {
+      graphics.setColor(Color.red)
+      graphics.drawString(
+        "Game Over",
+        width / 3,
+        height / 8
+      )
     }
 
-    private object BufferedRenderStrategy extends RenderStrategy {
-        def render(state : GameState) {
-            println("Game is rendered")
-        }
+
+    private def render(computation : (Graphics) => Unit) : Image = {
+      val graphics = bufferImage.getGraphics
+
+      computation(graphics)
+
+      graphics.dispose()
+
+      println("Game is rendered with a buffer")
+
+      bufferImage
     }
+
+  }
 
 }
