@@ -15,14 +15,15 @@ object GameEngine extends Runnable {
     val over : Boolean = false
   )
 
-  val updater : UpdateStrategy = UpdateStrategyProvider(UpdateStrategyProvider.Default)
-  val renderer : RenderStrategy = RenderStrategyProvider(RenderStrategyProvider.Default)
-  val painter : PainterStrategy = PainterStrategyProvider(PainterStrategyProvider.Default)
-  val timer : TimerStrategy = TimerStrategyProvider(TimerStrategyProvider.Default)
+  val update : UpdateStrategy = UpdateStrategyProvider.Default
+  val render : RenderStrategy = RenderStrategyProvider.Buffered
+  val repaint : PainterStrategy = PainterStrategyProvider.Default
+  val sleep : TimerStrategy = TimerStrategyProvider.Default
 
   @volatile var gameState = new GameState()
 
-  def run : Unit = {
+  @Override
+  def run() {
 
     gameState = new GameState(
       running = true,
@@ -31,13 +32,15 @@ object GameEngine extends Runnable {
 
     while(gameState.running) {
 
-      updater.update(gameState)
+      println("\n Engine iteration : ")
 
-      renderer.render(gameState)
+      update(gameState)
 
-      painter.repaint(gameState)
+      ui.GamePanel.scene = render(gameState)
 
-      timer.sleep(gameState)
+      repaint(gameState)
+
+      sleep(gameState)
 
     }
 
